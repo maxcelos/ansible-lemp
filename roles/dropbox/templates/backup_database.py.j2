@@ -1,0 +1,97 @@
+#! /usr/bin/python
+# -*- coding: utf-8 -*-
+import os, time, subprocess
+import sys
+import dropbox
+from dropbox.files import WriteMode
+from dropbox.exceptions import ApiError, AuthError
+
+TOKEN = "{{ dropbox_token }}"
+
+username = 'root'
+password = "{{ mysql_pass_root }}"
+hostname = 'localhost'
+
+date = time.strftime('%Y-%m-%d-%H-%M')
+
+# diretorio de armazenamento dos backups
+dest = "/var/backups/mysql"
+
+def clear(directory):
+    number_of_files = len([item for item in os.listdir(directory) if os.path.isfile(os.path.join(directory, item))])
+    if number_of_files > 1:
+        purge_dir(directory)
+
+def checkfile(filename):
+    filestats = os.stat(filename)
+    if time.time() - filestats.st_mtime > 86400 * 2:    # checa se o arquivo tem mais de 2 dias e remove caso positivo
+        os.remove(filename)
+
+def purge_dir(path):
+    dirList = os.listdir(path)
+    for filename in dirList:
+        checkfile(os.path.join(path, filename))
+
+
+def mysql_backup():
+    database_list_command="mysql -u %s -p%s -h %s --silent -N -e 'show databases'" % (username, password, hostname)
+    for database in os.popen(database_list_command).readlines():
+        database = database.strip()
+        if database == 'information_schema' or database == 'performance_schema' or database == 'sys':
+            continue
+
+        target_dir = dest + "/" + database
+        
+        if not os.path.exists(target_dir):
+            os.makedirs(target_dir)
+
+        filename = "%s/%s-%s.sql" % (target_dir, database, date)
+
+        os.popen("mysqldump --single-transaction -u %s -p%s -h%s %s | bzip2 -c > %s.bz2" % (username, password, hostname, database, filename)).read()
+
+        backuppath = "/databases/%s/%s-%s.sql.bz2" % (database, database, date)
+        localfile = "%s.bz2" % (filename)
+        upload_dropbox(localfile, backuppath)
+        clear(target_dir)
+
+# Uploads contents of LOCALFILE to Dropbox
+def upload_dropbox(localfile, backuppath):
+    with open(localfile, 'rb') as f:
+        # We use WriteMode=overwrite to make sure that the settings in the file
+        # are changed on upload
+        print("Uploading " + localfile + " to Dropbox as " + backuppath + "...")
+        try:
+            dbx.files_upload(f.read(), backuppath, mode=WriteMode('overwrite'))
+        except ApiError as err:
+            # This checks for the specific error where a user doesn't have
+            # enough Dropbox space quota to upload this file
+            if (err.error.is_path() and
+                    err.error.get_path().reason.is_insufficient_space()):
+                sys.exit("ERROR: Cannot back up; insufficient space.")
+            elif err.user_message_text:
+                print(err.user_message_text)
+                sys.exit()
+            else:
+                print(err)
+                sys.exit()
+
+if __name__ == '__main__':
+    # Check for an access token
+    if (len(TOKEN) == 0):
+        sys.exit("ERROR: Looks like you didn't add your access token. "
+            "Open up backup-and-restore-example.py in a text editor and "
+            "paste in your token in line 14.")
+
+    # Create an instance of a Dropbox class, which can make requests to the API.
+    print("Creating a Dropbox object...")
+    with dropbox.Dropbox(TOKEN) as dbx:
+
+        # Check that the access token is valid
+        try:
+            dbx.users_get_current_account()
+        except AuthError:
+            sys.exit("ERROR: Invalid access token; try re-generating an "
+                "access token from the app console on the web.")
+
+        # Create a backup of the current settings file
+        mysql_backup()

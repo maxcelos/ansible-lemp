@@ -1,0 +1,6 @@
+[server]
+vm_webserver ansible_host=192.168.0.53 ansible_user=aristides ansible_ssh_pass=108
+
+[webserver]
+
+[database]

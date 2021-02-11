@@ -1,0 +1,24 @@
+---
+# vars file for mysql
+mysql_databases:
+  - name: database1
+    encoding: utf8mb4
+
+mysql_users:
+  # Usuário utilizado apenas para realizar o backup do banco
+  - user: backup
+    password: "{{ mysql_user_backup_password }}"
+    host: 'localhost'
+    priv: '*.*:SELECT,SHOW VIEW,TRIGGER,LOCK TABLES,RELOAD,PROCESS,SUPER,FILE'
+
+  - user: marcelo
+    password: password
+    host: '%'
+    priv: '*.*:ALL,GRANT'
+
+
+# mysql_import:
+#   - bucket: 
+#     file: 
+#     dest: 
+#     database: 

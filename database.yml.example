@@ -1,0 +1,30 @@
+---
+- hosts: database
+  become: yes
+
+  vars:
+    timezone: 'America/New_York'
+    hostname: myserver
+    
+    ssh_port: 2200
+
+    # Senha do usuário root do Mysql
+    mysql_pass_root: password
+
+    # Dropbox token 
+    dropbox_token: my-token
+
+  roles:
+    - start
+    - ssh
+    - php
+    - mysql
+    - fail2ban
+    - firewall
+    - dropbox
+
+  tasks:
+    - name: Atualizando novos pacotes
+      apt:
+        update_cache: yes
+        upgrade: dist

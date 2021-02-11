@@ -1,0 +1,99 @@
+---
+# tasks file for php
+- name: "Adicionando PPA para instalação do PHP {{ php_version }}"
+  apt_repository:
+    repo: ppa:ondrej/php
+    state: present
+    update_cache: yes
+
+- name: Instalando PHP-FPM {{ php_version }}
+  apt:
+    state: latest
+    pkg:
+      - php-memcached
+      - "php{{ item }}-common"
+      - "php{{ item }}-cli"
+      - "php{{ item }}-fpm"
+      - "php{{ item }}-pgsql"
+      - "php{{ item }}-mysql"
+      - "php{{ item }}-gd"
+      - "php{{ item }}-bz2"
+      - "php{{ item }}-zip"
+      - "php{{ item }}-curl"
+      - "php{{ item }}-intl"
+      - "php{{ item }}-interbase"
+      - "php{{ item }}-mbstring"
+      - "php{{ item }}-bcmath"
+      - "php{{ item }}-soap"
+      - "php{{ item }}-redis"
+      - "php{{ item }}-snmp"
+      - "php{{ item }}-opcache"
+      - "php{{ item }}-xml"
+      - "php{{ item }}-xmlrpc"
+      - "php{{ item }}-xsl"
+  with_items: "{{ php_version }}"
+
+- name: Instalando dependencias JSON para PHP < 8.0
+  apt:
+    state: latest
+    pkg:
+      - "php{{ item }}-json"
+  with_items: "{{ php_version }}"
+  when: item != 8.0
+
+- name: Seta date.timezone
+  lineinfile:
+    dest: "/etc/php/{{ item }}/fpm/php.ini"
+    regexp: "date.timezone ="
+    line: "date.timezone = {{ timezone }}"
+  with_items: "{{ php_version }}"
+
+- name: Seta cgi.fix_pathinfo
+  lineinfile:
+    dest: "/etc/php/{{ item }}/fpm/php.ini"
+    regexp: "cgi.fix_pathinfo="
+    line: "cgi.fix_pathinfo = 0"
+  with_items: "{{ php_version }}"
+
+- name: Seta max_execution_time
+  lineinfile:
+    dest: "/etc/php/{{ item }}/fpm/php.ini"
+    regexp: "max_execution_time ="
+    line: "max_execution_time = {{ max_execution_time }}"
+  with_items: "{{ php_version }}"
+
+- name: Seta max_input_time
+  lineinfile:
+    dest: "/etc/php/{{ item }}/fpm/php.ini"
+    regexp: "max_input_time ="
+    line: "max_input_time = {{ max_input_time }}"
+  with_items: "{{ php_version }}"
+
+- name: Seta memory_limit
+  lineinfile:
+    dest: "/etc/php/{{ item }}/fpm/php.ini"
+    regexp: "memory_limit ="
+    line: "memory_limit = {{ memory_limit }}"
+  with_items: "{{ php_version }}"
+
+- name: Seta post_max_size
+  lineinfile:
+    dest: "/etc/php/{{ item }}/fpm/php.ini"
+    regexp: "post_max_size ="
+    line: "post_max_size = {{ post_max_size }}"
+  with_items: "{{ php_version }}"
+
+- name: Seta upload_max_filesize
+  lineinfile:
+    dest: "/etc/php/{{ item }}/fpm/php.ini"
+    regexp: "upload_max_filesize ="
+    line: "upload_max_filesize = {{ upload_max_filesize }}"
+  with_items: "{{ php_version }}"
+
+- name: Seta max_file_uploads
+  lineinfile:
+    dest: "/etc/php/{{ item }}/fpm/php.ini"
+    regexp: "max_file_uploads ="
+    line: "max_file_uploads = {{ max_file_uploads }}"
+  with_items: "{{ php_version }}"
+  notify: restart php-fpm

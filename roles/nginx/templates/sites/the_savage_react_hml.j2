@@ -1,0 +1,49 @@
+server {
+    listen 80;
+    # gzip config
+    gzip on;
+    gzip_min_length 1k;
+    gzip_comp_level 9;
+    gzip_types text/plain application/javascript application/x-javascript text/css application/xml text/javascript application/x-httpd-php image/jpeg image/gif image/png;
+    gzip_vary on;
+    gzip_disable "MSIE [1-6]\.";
+
+    root /home/{{ user_deploy }}/apps/the-savage/react/hml/dist;
+
+    server_name apph.agencysavage.com;
+
+    location / {
+        # Used in conjunction with browserHistory
+        try_files $uri $uri/ /index.html;
+
+        # If you have resources, it is recommended to use https + http2 for a better experience with on-demand loading.
+        # rewrite ^/(.*)$ https://preview.pro.ant.design/$1 permanent;
+
+    }
+    location /api {
+        proxy_pass https://preview.pro.ant.design;
+        proxy_set_header   X-Forwarded-Proto $scheme;
+        proxy_set_header   Host              $http_host;
+        proxy_set_header   X-Real-IP         $remote_addr;
+    }
+}
+server {
+   # If you have resources, it is recommended to use https + http2 for a better experience with on-demand loading.
+  listen 443 http2;
+
+  # Public and private key of the certificate
+  #ssl_certificate /path/to/public.crt;
+  #ssl_certificate_key /path/to/private.key;
+
+  location / {
+        # Used in conjunction with browserHistory
+        try_files $uri $uri/ /index.html;
+
+  }
+  location /api {
+      proxy_pass https://preview.pro.ant.design;
+      proxy_set_header   X-Forwarded-Proto $scheme;
+      proxy_set_header   Host              $http_host;
+      proxy_set_header   X-Real-IP         $remote_addr;
+  }
+}

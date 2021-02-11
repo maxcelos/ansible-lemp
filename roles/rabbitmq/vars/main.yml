@@ -1,0 +1,7 @@
+---
+# vars file for roles/rabbitmq
+erlang_version: 22
+
+rabbitmq_version: 3.8.11
+
+rabbitmq_password_guest: KSRltvBmNFg6ONDRTdAz

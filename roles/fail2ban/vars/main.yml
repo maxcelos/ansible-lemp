@@ -1,0 +1,7 @@
+---
+# vars file for fail2ban
+ignoreip: "127.0.0.0/8 10.0.0.0/8 8.8.8.8"
+
+bantime: 3600
+findtime: 600
+maxretry: 3

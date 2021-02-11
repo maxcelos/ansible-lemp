@@ -1,0 +1,11 @@
+---
+# tasks file for mysql
+- name: Importação dos bancos de dados
+  mysql_db:
+    login_host: 'localhost'
+    login_user: 'root'
+    login_password: "{{ mysql_pass_root }}"
+    name: '{{ item.database }}'    
+    state: import
+    target: "{{ item.dest }}"
+  with_items: "{{ mysql_import }}"

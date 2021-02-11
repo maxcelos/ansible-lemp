@@ -1,0 +1,54 @@
+---
+# tasks file for roles/rabbitmq
+- name: Download chave repositório Erlang
+  shell: curl -fsSL https://github.com/rabbitmq/signing-keys/releases/download/2.0/rabbitmq-release-signing-key.asc | sudo apt-key add -
+
+- name: Adicionando assinatura do repositório
+  apt_key:
+    keyserver: hkps://keys.openpgp.org
+    id: "0x0A9AF2115F4687BD29803A206B73A36E6026DFCA"
+    state: present
+
+- name: Adicionando repositório Erlang no sources.list
+  apt_repository:
+    repo: deb https://dl.bintray.com/rabbitmq-erlang/debian focal erlang-{{ erlang_version }}.x
+    state: present
+
+- name: Instalando Erlang
+  apt:
+    state: latest
+    update_cache: yes
+    pkg:
+      - erlang-base
+      - erlang-asn1
+      - erlang-crypto
+      - erlang-eldap
+      - erlang-ftp
+      - erlang-inets
+      - erlang-mnesia
+      - erlang-os-mon
+      - erlang-parsetools
+      - erlang-public-key
+      - erlang-runtime-tools
+      - erlang-snmp
+      - erlang-ssl
+      - erlang-syntax-tools
+      - erlang-tftp
+      - erlang-tools
+      - erlang-xmerl
+
+- name: Instalando dependencias para Rabbitmq
+  apt: 
+    state: latest
+    pkg:
+      - socat
+      - logrotate
+      - init-system-helpers
+      - adduser
+
+- name: Instalando Rabbitmq
+  apt:
+    deb: https://github.com/rabbitmq/rabbitmq-server/releases/download/v{{ rabbitmq_version }}/rabbitmq-server_{{ rabbitmq_version }}-1_all.deb
+
+- name: Alterando senha usuário guest
+  shell: sudo rabbitmqctl change_password guest {{ rabbitmq_password_guest }}

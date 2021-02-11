@@ -1,0 +1,17 @@
+---
+# vars file for ssh
+ssh_port: 2200
+permit_root_login: 'no'
+allow_users: 'marcelo deployer'
+
+# Gerar senhas para os usuarios
+# python -c 'import crypt; print crypt.crypt("password", "$1$gahDut1h$")'
+
+users_ssh:
+  - name: marcelo
+    password: $1$gahDut1h$d3bzvSHnvR9OyBD.FuLCz1 # password
+    groups: sudo
+  
+  - name: deployer
+    password: $1$gahDut1h$d3bzvSHnvR9OyBD.FuLCz1 # password
+    groups: www-data

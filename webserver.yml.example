@@ -1,0 +1,34 @@
+---
+- hosts: webserver
+  become: yes
+
+  vars:
+    timezone: 'America/New_York'
+    hostname: myserver
+    php_version: 
+      - 7.4
+      - 8.0
+    ssh_port: 2200
+
+    # Gerar senha segura: openssl rand 60 | openssl base64 -A
+    redis_password: password
+
+    # Usuário de deploy
+    user_deploy: deployer
+
+  roles:
+    - start
+    - ssh
+    - nginx
+    - php
+    - redis
+    - fail2ban
+    - firewall
+    - webserver
+    - rabbitmq
+
+  tasks:
+    - name: Atualizando novos pacotes
+      apt:
+        update_cache: yes
+        upgrade: dist

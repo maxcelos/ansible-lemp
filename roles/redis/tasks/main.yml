@@ -1,0 +1,26 @@
+---
+# tasks file for roles/redis
+- name: Instalando redis
+  apt: 
+    state: latest
+    pkg:
+      - redis-server
+
+- name: Configurando systemd
+  lineinfile:
+    dest: /etc/redis/redis.conf
+    regexp: "supervised no"
+    line: "supervised systemd"
+
+- name: Configurando bind
+  lineinfile:
+    dest: /etc/redis/redis.conf
+    regexp: "# bind 127.0.0.1 ::1"
+    line: "bind 127.0.0.1 ::1"
+
+- name: Definindo senha
+  lineinfile:
+    dest: /etc/redis/redis.conf
+    regexp: "# requirepass"
+    line: "requirepass {{ redis_password }}"
+  notify: restart redis

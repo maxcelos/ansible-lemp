@@ -1,0 +1,13 @@
+---
+# defaults file for php
+timezone: America/New_York
+
+php_version: 
+  - 8.0
+
+max_execution_time: 180
+max_input_time: 180
+memory_limit: 256M
+post_max_size: 128M
+upload_max_filesize: 128M
+max_file_uploads: 128

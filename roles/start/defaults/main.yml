@@ -1,0 +1,4 @@
+---
+# defaults file for start
+timezone: America/New_York
+hostname: myserver

@@ -1,0 +1,6 @@
+---
+# handlers file for roles/firewall
+- name: reload ufw
+  service:
+    name: ufw
+    state: reload

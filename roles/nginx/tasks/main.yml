@@ -1,0 +1,53 @@
+---
+# tasks file for nginx
+- name: Instalando Nginx
+  apt:
+    name: nginx
+    state: latest
+
+- name: Copiando arquivos de sites
+  template:
+    src: "sites/{{ item }}.j2"
+    dest: /etc/nginx/sites-available/{{ item }}
+  loop:
+    - sgm_api_hml
+    - the_savage_api_hml
+    - the_savage_api_prod
+    - the_savage_react_hml
+
+- name: Desativando virtual host default do Nginx
+  file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+ 
+- name: Ativando virtual hosts
+  file:
+    src: /etc/nginx/sites-available/{{ item }}
+    dest: /etc/nginx/sites-enabled/{{ item }}
+    state: link
+  loop:
+    - sgm_api_hml
+    - the_savage_api_hml
+    - the_savage_api_prod
+    - the_savage_react_hml
+  notify: restart nginx
+
+- name: Criando diretórios web
+  file:
+    path: "/home/deployer/apps/{{ item }}"
+    state: directory
+    owner: deployer
+    group: deployer
+  loop:
+    - "the-savage/api/prod"
+    - "the-savage/api/hml"
+    - "the-savage/react/prod"
+    - "the-savage/react/hml"
+    - "central/api/prod"
+    - "central/api/hml"
+
+- name: Copiando arquivo de configuração Nginx
+  copy:
+    src: nginx.conf
+    dest: /etc/nginx/nginx.conf
+    backup: yes

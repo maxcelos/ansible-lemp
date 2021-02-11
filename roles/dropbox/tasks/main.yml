@@ -1,0 +1,15 @@
+---
+# tasks file for roles/dropbox
+- name: Instalandro SDK Dropbox
+  pip:
+    name: dropbox
+
+- name: Criando diretório de script
+  file:
+    path: /root/scripts
+    state: directory
+
+- name: Copiando script de backup
+  template:
+    src: backup_database.py.j2
+    dest: /root/scripts/backup_database.py

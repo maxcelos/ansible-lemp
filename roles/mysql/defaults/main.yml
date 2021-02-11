@@ -1,0 +1,5 @@
+---
+# defaults file for mysql
+mysql_pass_root: password
+
+mysql_user_backup_password: password

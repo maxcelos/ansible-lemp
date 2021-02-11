@@ -1,0 +1,48 @@
+---
+# tasks file for start
+- name: Atualizando repositório e pacotes do sistema
+  apt:
+    update_cache: yes
+    upgrade: dist
+
+- name: Configurando timezone para {{ timezone }}
+  timezone:
+    name: "{{ timezone }}"
+
+- name: Configurando hostname do servidor
+  hostname:
+    name: "{{ hostname }}"
+
+- name: Instalando pacotes essenciais
+  apt: 
+    state: latest
+    pkg:
+      - aptitude
+      - apt-transport-https
+      - acl
+      - ntp
+      - ntpdate
+      - git
+      - curl
+      - sudo
+      - libaio1
+      - zip
+      - unrar
+      - mutt
+      - certbot
+      - supervisor
+
+- name: Instalando dependencias do Python
+  apt: 
+    state: latest
+    pkg:
+      - python3-pip
+      - python3-mysqldb
+      - python3-pymysql
+      - python-setuptools
+      - virtualenv
+
+- name: Copiando arquivo de configuração do Mutt
+  template:
+    src: muttrc.j2
+    dest: /root/.muttrc

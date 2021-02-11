@@ -1,0 +1,4 @@
+---
+# defaults file for roles/redis
+# Gerar senha segura: openssl rand 60 | openssl base64 -A
+redis_password: ZhiWHtINpJgvWPmGxaOxynn/IOPuThd6pXziMWzWEDSwLyOcii/YJgEO6UN/QbsHspEMmAWoxvDWTuAU

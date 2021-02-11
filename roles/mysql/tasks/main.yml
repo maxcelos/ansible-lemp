@@ -1,0 +1,67 @@
+---
+# tasks file for mysql
+- name: Instalando MySQL Server
+  apt: 
+    state: latest
+    update_cache: yes
+    pkg:
+      - mysql-server
+      - mysql-client
+      - python3-pymysql
+      - python3-mysqldb
+  notify: restart mysql
+
+- name: Altera plugin de autenticação usuário root para mysql_native_password
+  shell: mysql -u root -e 'UPDATE mysql.user SET plugin="mysql_native_password" WHERE user="root" AND host="localhost"'
+
+- name: Recarregando privilégios
+  shell: mysql -u root -e 'FLUSH PRIVILEGES'
+
+- name: Definindo senha para usuário root
+  mysql_user:
+    login_host: 'localhost'
+    login_user: 'root'
+    login_password: ''
+    name: 'root'
+    password: '{{ mysql_pass_root }}'
+    state: present
+  no_log: true
+
+- name: Criando bancos de dados Mysql
+  mysql_db:
+    login_host: 'localhost'
+    login_user: 'root'
+    login_password: "{{ mysql_pass_root }}"
+    name: '{{ item.name }}'    
+    state: present
+    encoding: "{{ item.encoding }}"
+  with_items: "{{ mysql_databases }}"
+  no_log: true
+
+- name: Criando usuarios do Mysql
+  mysql_user:
+    login_host: 'localhost'
+    login_user: 'root'
+    login_password: "{{ mysql_pass_root }}"
+    name: '{{ item.user }}'
+    password: '{{ item.password }}'
+    priv: "{{ item.priv }}"
+    host: "{{ item.host }}"
+    state: present
+  with_items: "{{ mysql_users }}"
+  no_log: true
+
+- name: Copiando arquivo mysql.cnf
+  copy:
+    src: mysql.cnf
+    dest: /etc/mysql/mysql.conf.d/mysql.cnf
+    backup: yes
+
+- name: Copiando arquivo mysqld.cnf
+  copy:
+    src: mysqld.cnf
+    dest: /etc/mysql/mysql.conf.d/mysqld.cnf
+    backup: yes
+  notify: restart mysql
+
+# - import_tasks: import.yml

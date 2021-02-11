@@ -1,0 +1,41 @@
+---
+# tasks file for fail2ban
+- name: Instalando fail2ban
+  package:
+    state: latest
+    pkg:
+      - fail2ban
+
+- name: Copiando filtro Nginx - badbots
+  copy:
+    src: nginx-badbots.conf
+    dest: /etc/fail2ban/filter.d/nginx-badbots.conf
+  notify: restart fail2ban
+
+- name: Copiando filtro Nginx - nohome
+  copy:
+    src: nginx-nohome.conf
+    dest: /etc/fail2ban/filter.d/nginx-nohome.conf
+  notify: restart fail2ban
+
+- name: Copiando filtro Nginx - noproxy
+  copy:
+    src: nginx-noproxy.conf
+    dest: /etc/fail2ban/filter.d/nginx-noproxy.conf
+  notify: restart fail2ban
+
+- name: Copiando arquivo de configuração do Fail2ban
+  template:
+    src: jail.local.j2
+    dest: /etc/fail2ban/jail.local
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart fail2ban
+
+- name: Inicia e ativa o serviço
+  service:
+    name: fail2ban
+    state: started
+    enabled: true
+

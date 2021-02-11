@@ -1,0 +1,19 @@
+---
+# tasks file for roles/firewall
+- name: Certifica que o UFW está instalado
+  apt:
+    name: ufw
+    state: present
+
+- name: Definindo regras padrões
+  command: "ufw {{ item }}"
+  loop: 
+    - default deny incoming
+    - default allow outgoing
+
+- name: Liberando portas essenciais
+  command: "ufw allow {{ item }}"
+  loop: "{{ ufw_allow_ports }}"
+
+- name: Ativa o firewall
+  command: ufw --force enable

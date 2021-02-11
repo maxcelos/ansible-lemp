@@ -1,0 +1,23 @@
+---
+# tasks file for roles/webserver
+- name: Adicionando repositório NodeJS
+  shell: "curl -sL https://deb.nodesource.com/setup_{{ nodejs_version }}.x | sudo -E bash -"
+
+- name: Instalando NodeJS
+  apt: 
+    name: nodejs
+    state: latest
+
+- name: Instalando composer
+  shell: php -r "readfile('http://getcomposer.org/installer');" | php -- --install-dir=/usr/bin/ --filename=composer
+
+# Supervisor config
+- name: Copiando arquivo de config supervisor - Horizon
+  template:
+    src: supervisor/horizon.conf
+    dest: /etc/supervisor/conf.d/horizon.conf
+
+- name: Copiando arquivo de config supervisor - Rabbitmq
+  template:
+    src: supervisor/horizon.conf
+    dest: /etc/supervisor/conf.d/rabbitmq.conf
